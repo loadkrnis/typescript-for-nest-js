@@ -3,6 +3,8 @@ import { BoardRepository } from './board.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './board.entity';
 import { BoardDto } from './dto/board.dto';
+import { DeleteResult } from 'typeorm';
+import { BoardStatus } from './board-status.emum';
 
 @Injectable()
 export class BoardsService {
@@ -65,5 +67,25 @@ export class BoardsService {
 
   createBoard(boardDto: BoardDto): Promise<Board> {
     return this.boardRepository.createBoard(boardDto);
+  }
+
+  async deleteBoard(id: number): Promise<void> {
+    const result: DeleteResult = await this.boardRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`[${id}]는 존재하지 않습니다.`);
+    }
+  }
+
+  async updateBoardStatus(id: number, status: BoardStatus): Promise<void> {
+    const board = await this.getBoardById(id);
+
+    if (!board) {
+      throw new NotFoundException(`[${id}]는 존재하지 않습니다.`);
+    }
+
+    board.status = status;
+
+    await this.boardRepository.save(board);
   }
 }
