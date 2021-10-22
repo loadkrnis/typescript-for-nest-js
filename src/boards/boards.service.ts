@@ -88,4 +88,8 @@ export class BoardsService {
 
     await this.boardRepository.save(board);
   }
+
+  async getBoardAll(): Promise<Array<Board>> {
+    return await this.boardRepository.find();
+  }
 }
